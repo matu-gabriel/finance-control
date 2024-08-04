@@ -1,0 +1,22 @@
+{
+  "name": "finance-control",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "bcrypt": "^5.1.1",
+    "express": "^4.19.2",
+    "mongoose": "^8.5.2",
+    "sucrase": "^3.35.0",
+    "yup": "^1.4.0"
+  },
+  "devDependencies": {
+    "nodemon": "^3.1.4"
+  }
+}
