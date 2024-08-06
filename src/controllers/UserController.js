@@ -1,4 +1,4 @@
-import UserSchema from "../models/UserSchema";
+import UserService from "../services/UserService";
 import * as Yup from "yup";
 
 class UserController {
@@ -17,22 +17,16 @@ class UserController {
       return res.status(400).json({ errors: err.errors });
     }
 
-    const { name, email, password_hash } = req.body;
+    const { email } = req.body;
 
-    const userExist = await UserSchema.findOne({ email });
+    const userExist = await UserService.findUserByEmail(email);
     if (userExist) {
       return res.status(400).json({ messege: "User already exist" });
     }
 
-    const newUser = await UserSchema.create({
-      name,
-      email,
-      password_hash,
-    });
+    const user = await UserService.createUser(req.body);
 
-    return res
-      .status(201)
-      .json({ messege: "User created successfully", user: newUser });
+    return res.status(201).json({ messege: "User created successfully", user });
   }
 }
 
