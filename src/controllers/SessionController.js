@@ -1,6 +1,7 @@
 import * as Yup from "yup";
 import UserService from "../services/UserService";
 import bcrypt from "bcrypt";
+import jwt from "jsonwebtoken";
 
 class SessionController {
   async store(req, res) {
@@ -23,22 +24,28 @@ class SessionController {
 
     const { email, password } = req.body;
 
-    const userExist = await UserService.findUserByEmail(email);
+    const user = await UserService.findUserByEmail(email);
 
-    if (!userExist) {
+    if (!user) {
       return emailOrPasswordInvalid();
     }
 
-    const isPasswordValid = await bcrypt.compare(
-      password,
-      userExist.password_hash
-    );
+    const isPasswordValid = await bcrypt.compare(password, user.password_hash);
 
     if (!isPasswordValid) {
       return emailOrPasswordInvalid();
     }
 
-    return res.status(201).json("ok");
+    return res
+      .status(201)
+      .json({
+        id: user._id,
+        name: user.name,
+        email: user.email,
+        token: jwt.sign({ id: user._id }, process.env.SECRET_JWT, {
+          expiresIn: "1d",
+        }),
+      });
   }
 }
 
