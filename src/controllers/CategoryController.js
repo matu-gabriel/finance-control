@@ -8,7 +8,6 @@ class CategoryController {
       color: Yup.string()
         .required("Color is required")
         .matches(/^#[0-9A-F]{6}$/i, "Invalid color format"),
-      user: Yup.string().required("User is required"),
     });
 
     try {
@@ -17,7 +16,7 @@ class CategoryController {
       return res.status(400).json({ errors: err.errors });
     }
 
-    const { title, color, user } = req.body;
+    const { title, color } = req.body;
 
     const categoryExist = await CategoryService.verifyCategory(title);
 
@@ -29,7 +28,7 @@ class CategoryController {
       const category = await CategoryService.createCategory({
         title,
         color,
-        user,
+        user: req.userId,
       });
 
       return res.status(201).json(category);
