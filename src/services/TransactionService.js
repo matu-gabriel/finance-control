@@ -26,6 +26,15 @@ class TransactionService {
       throw err;
     }
   }
+
+  static async getTransactionByUser(userId) {
+    try {
+      const transactions = await Transaction.find({ user: userId });
+      return transactions;
+    } catch (err) {
+      throw new Error("Error fetching transactions");
+    }
+  }
 }
 
 export default TransactionService;

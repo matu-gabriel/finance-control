@@ -20,5 +20,6 @@ router.post("/category", CategoryController.store);
 router.get("/category", CategoryController.index);
 
 router.post("/transaction", TransactionController.store);
+router.get("/transaction", TransactionController.index);
 
 export default router;

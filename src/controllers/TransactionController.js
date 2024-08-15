@@ -37,6 +37,17 @@ class TransactionController {
       return res.status(400).json({ error: err.message });
     }
   }
+
+  async index(req, res) {
+    try {
+      const transactions = await TransactionService.getTransactionByUser(
+        req.userId
+      );
+      return res.status(200).json(transactions);
+    } catch (err) {
+      return res.status(400).json({ error: err.messege });
+    }
+  }
 }
 
 export default new TransactionController();
