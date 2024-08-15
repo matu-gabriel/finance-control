@@ -19,12 +19,6 @@ class CategoryController {
 
     const { title, color } = req.body;
 
-    const categoryExist = await CategoryService.verifyCategory(title);
-
-    if (categoryExist) {
-      return res.status(400).json({ messege: "Category already exist" });
-    }
-
     try {
       const category = await CategoryService.createCategory({
         title,
