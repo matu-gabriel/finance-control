@@ -1,15 +1,29 @@
+import Category from "../models/CategorySchema";
 import Transaction from "../models/TransactionSchema";
 
 class TransactionService {
-  static async createTransaction(data) {
-    // console.log("Creating transaction with data:", data);
+  static async createTransaction({ title, amount, type, categoryTitle, user }) {
     try {
-      const transaction = await Transaction.create(data);
-      console.log("Transaction created:", transaction);
-      return transaction;
+      console.log("Searching for category with title:", categoryTitle);
+
+      const category = await Category.findOne({ title: categoryTitle });
+
+      if (!category) {
+        throw new Error("Category not found");
+      }
+
+      const transaction = await Transaction.create({
+        title,
+        amount,
+        type,
+        category: category._id,
+        user,
+      });
+
+      return await Transaction.findById(transaction._id).populate("category");
     } catch (err) {
-      console.error("Error creating transaction:", err);
-      throw new Error("Error creating transaction");
+      console.error("Error creating transaction:", err.message);
+      throw err;
     }
   }
 }

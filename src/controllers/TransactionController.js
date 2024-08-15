@@ -1,5 +1,6 @@
 import * as Yup from "yup";
 import TransactionService from "../services/TransactionService";
+import Category from "../models/CategorySchema";
 
 class TransactionController {
   async store(req, res) {
@@ -10,7 +11,7 @@ class TransactionController {
       type: Yup.string()
         .oneOf(["income", "expense"])
         .required("Type is required"),
-      categoryId: Yup.string().required("Category is required"),
+      categoryTitle: Yup.string().required("Category is required"),
     });
 
     try {
@@ -19,14 +20,16 @@ class TransactionController {
       return res.status(400).json({ errors: err.errors });
     }
 
-    const { title, amount, type, categoryId } = req.body;
+    const { title, amount, type, categoryTitle } = req.body;
+
+    console.log("REquest body: ", req.body);
 
     try {
       const transaction = await TransactionService.createTransaction({
         title,
         amount,
         type,
-        category: categoryId,
+        categoryTitle,
         user: req.userId,
       });
       return res.status(201).json(transaction);
