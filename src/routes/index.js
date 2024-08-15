@@ -3,6 +3,7 @@ import UserController from "../controllers/UserController";
 import SessionController from "../controllers/SessionController";
 import CategoryController from "../controllers/CategoryController";
 import authMiddleware from "../middlewares/auth";
+import TransactionController from "../controllers/TransactionController";
 
 const router = new Router();
 
@@ -16,5 +17,7 @@ router.post("/session", SessionController.store);
 router.use(authMiddleware);
 
 router.post("/category", CategoryController.store);
+
+router.post("/transaction", TransactionController.store);
 
 export default router;
