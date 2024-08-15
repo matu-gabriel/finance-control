@@ -13,6 +13,15 @@ class CategoryService {
   static async verifyCategory(title) {
     return Category.findOne({ title });
   }
+
+  static async getCategoriesByUser(user) {
+    try {
+      const categories = await Category.find({ user });
+      return categories;
+    } catch (err) {
+      throw new Error("Error fetching categories");
+    }
+  }
 }
 
 export default CategoryService;

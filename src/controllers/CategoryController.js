@@ -1,3 +1,4 @@
+import Category from "../models/CategorySchema";
 import CategoryService from "../services/CategoryService";
 import * as Yup from "yup";
 
@@ -34,6 +35,15 @@ class CategoryController {
       return res.status(201).json(category);
     } catch (err) {
       return res.status(400).json({ error: err.message });
+    }
+  }
+
+  async index(req, res) {
+    try {
+      const categories = await CategoryService.getCategoriesByUser(req.userId);
+      return res.status(200).json(categories);
+    } catch (err) {
+      return res.status(400).json({ error: err.messege });
     }
   }
 }

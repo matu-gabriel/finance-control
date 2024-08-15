@@ -17,6 +17,7 @@ router.post("/session", SessionController.store);
 router.use(authMiddleware);
 
 router.post("/category", CategoryController.store);
+router.get("/category", CategoryController.index);
 
 router.post("/transaction", TransactionController.store);
 
