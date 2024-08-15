@@ -36,16 +36,14 @@ class SessionController {
       return emailOrPasswordInvalid();
     }
 
-    return res
-      .status(201)
-      .json({
-        id: user._id,
-        name: user.name,
-        email: user.email,
-        token: jwt.sign({ id: user._id }, process.env.SECRET_JWT, {
-          expiresIn: "1d",
-        }),
-      });
+    return res.status(201).json({
+      id: user._id,
+      name: user.name,
+      email: user.email,
+      token: jwt.sign({ id: user._id }, process.env.SECRET_JWT, {
+        expiresIn: process.env.EXPIRES_IN,
+      }),
+    });
   }
 }
 
