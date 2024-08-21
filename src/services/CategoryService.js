@@ -24,6 +24,31 @@ class CategoryService {
       throw new Error("Error fetching categories");
     }
   }
+
+  static async updateCategory({ categoryId, user, title, color }) {
+    try {
+      const category = await Category.findOne({
+        _id: categoryId,
+        user,
+      });
+
+      if (!category) {
+        throw new Error(
+          "Category not found or you not have permission to update this category"
+        );
+      }
+
+      category.title = title || category.title;
+      category.color = color || category.color;
+
+      await category.save();
+
+      return category;
+    } catch (err) {
+      console.error("Error updating category:", err.message);
+      throw new Error("Error updating category");
+    }
+  }
 }
 
 export default CategoryService;

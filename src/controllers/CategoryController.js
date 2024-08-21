@@ -40,6 +40,34 @@ class CategoryController {
       return res.status(400).json({ error: err.messege });
     }
   }
+
+  async update(req, res) {
+    const schema = Yup.object().shape({
+      title: Yup.string().optional(),
+      color: Yup.string().optional(),
+    });
+
+    try {
+      schema.validateSync(req.body, { abortEarly: false });
+    } catch (err) {
+      return res.status(400).json({ errors: err.errors });
+    }
+
+    const { title, color } = req.body;
+    const categoryId = req.params.id;
+
+    try {
+      const updateCategory = await CategoryService.updateCategory({
+        categoryId,
+        user: req.userId,
+        title,
+        color,
+      });
+      return res.status(201).json(updateCategory);
+    } catch (err) {
+      return res.status(400).json({ error: err.message });
+    }
+  }
 }
 
 export default new CategoryController();
