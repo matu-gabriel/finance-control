@@ -22,5 +22,6 @@ router.put("/category/:id", CategoryController.update);
 
 router.post("/transaction", TransactionController.store);
 router.get("/transaction", TransactionController.index);
+router.put("/transaction/:transactionId", TransactionController.update);
 
 export default router;

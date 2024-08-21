@@ -1,11 +1,10 @@
+import mongoose from "mongoose";
 import Category from "../models/CategorySchema";
 import Transaction from "../models/TransactionSchema";
 
 class TransactionService {
   static async createTransaction({ title, amount, type, categoryTitle, user }) {
     try {
-      console.log("Searching for category with title:", categoryTitle);
-
       const category = await Category.findOne({ title: categoryTitle });
 
       if (!category) {
@@ -33,6 +32,35 @@ class TransactionService {
       return transactions;
     } catch (err) {
       throw new Error("Error fetching transactions");
+    }
+  }
+
+  static async updateTransaction(transactionId, user, data) {
+    try {
+      if (!mongoose.Types.ObjectId.isValid(transactionId)) {
+        throw new Error("Invalid transaction Id");
+      }
+
+      const transaction = await Transaction.findOne({
+        _id: transactionId,
+        user,
+      });
+
+      if (!transaction) {
+        throw new Error("Transaction not found");
+      }
+
+      transaction.title = data.title || transaction.title;
+      transaction.amount = data.amount || transaction.amount;
+      transaction.type = data.type || transaction.type;
+      transaction.category = data.category || transaction.category;
+
+      await transaction.save();
+
+      return transaction;
+    } catch (err) {
+      console.error("Error updating transaction:", err.message);
+      throw new Error("Error updating transaction");
     }
   }
 }
