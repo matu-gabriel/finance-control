@@ -19,6 +19,7 @@ router.use(authMiddleware);
 router.post("/category", CategoryController.store);
 router.get("/category", CategoryController.index);
 router.put("/category/:id", CategoryController.update);
+router.delete("/category/:categoryId", CategoryController.delete);
 
 router.post("/transaction", TransactionController.store);
 router.get("/transaction", TransactionController.index);

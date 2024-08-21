@@ -68,6 +68,17 @@ class CategoryController {
       return res.status(400).json({ error: err.message });
     }
   }
+
+  async delete(req, res) {
+    const { categoryId } = req.params;
+    const userId = req.userId;
+    try {
+      const result = await CategoryService.deleteCategory(categoryId, userId);
+      return res.status(200).json(result);
+    } catch (err) {
+      return res.status(400).json({ error: err.message });
+    }
+  }
 }
 
 export default new CategoryController();

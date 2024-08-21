@@ -3,9 +3,12 @@ import Category from "../models/CategorySchema";
 import Transaction from "../models/TransactionSchema";
 
 class TransactionService {
-  static async createTransaction({ title, amount, type, categoryTitle, user }) {
+  static async createTransaction({ title, amount, type, categoryId, userId }) {
     try {
-      const category = await Category.findOne({ title: categoryTitle });
+      const category = await Category.findOne({
+        _id: categoryId,
+        user: userId,
+      });
 
       if (!category) {
         throw new Error("Category not found");
@@ -15,8 +18,8 @@ class TransactionService {
         title,
         amount,
         type,
-        category: category._id,
-        user,
+        category: categoryId,
+        user: userId,
       });
 
       return await Transaction.findById(transaction._id).populate("category");
@@ -28,7 +31,9 @@ class TransactionService {
 
   static async getTransactionByUser(userId) {
     try {
-      const transactions = await Transaction.find({ user: userId });
+      const transactions = await Transaction.find({ user: userId })
+        .populate("category", "title")
+        .exec();
       return transactions;
     } catch (err) {
       throw new Error("Error fetching transactions");
@@ -44,7 +49,9 @@ class TransactionService {
       const transaction = await Transaction.findOne({
         _id: transactionId,
         user,
-      });
+      })
+        .populate("category", "title")
+        .exec();
 
       if (!transaction) {
         throw new Error("Transaction not found");

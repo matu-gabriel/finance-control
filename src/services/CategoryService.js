@@ -1,3 +1,4 @@
+import mongoose from "mongoose";
 import Category from "../models/CategorySchema";
 
 class CategoryService {
@@ -27,6 +28,10 @@ class CategoryService {
 
   static async updateCategory({ categoryId, user, title, color }) {
     try {
+      if (!mongoose.Types.ObjectId.isValid(categoryId)) {
+        throw new Error("Invalid transaction Id");
+      }
+
       const category = await Category.findOne({
         _id: categoryId,
         user,
@@ -47,6 +52,30 @@ class CategoryService {
     } catch (err) {
       console.error("Error updating category:", err.message);
       throw new Error("Error updating category");
+    }
+  }
+
+  static async deleteCategory(categoryId, user) {
+    try {
+      if (!mongoose.Types.ObjectId.isValid(categoryId)) {
+        throw new Error("Invalid Category ID");
+      }
+
+      const category = await Category.findOne({
+        _id: categoryId,
+        user,
+      });
+
+      if (!category) {
+        throw new Error("Category not found");
+      }
+
+      await category.deleteOne({ _id: categoryId, user });
+
+      return { message: "Category deleted successfully" };
+    } catch (err) {
+      console.error("Error deleting category:", err.message);
+      throw new Error("Error deleting category");
     }
   }
 }
