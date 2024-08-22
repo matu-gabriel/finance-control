@@ -7,7 +7,7 @@ class TransactionController {
       title: Yup.string().required("Title is required"),
       amount: Yup.number().required("Amount is required"),
       type: Yup.string()
-        .oneOf(["income", "expense"])
+        .oneOf(["receita", "despesa"])
         .required("Type is required"),
       categoryId: Yup.string().required("Category is required"),
     });
@@ -36,14 +36,15 @@ class TransactionController {
   }
 
   async index(req, res) {
-    const { startDate, endDate, type } = req.query;
+    const { startDate, endDate, type, sortBy } = req.query;
 
     try {
       const transactions = await TransactionService.getTransactions(
         req.userId,
         startDate,
         endDate,
-        type
+        type,
+        sortBy
       );
       return res.status(200).json(transactions);
     } catch (err) {
@@ -55,7 +56,7 @@ class TransactionController {
     const schema = Yup.object().shape({
       title: Yup.string().optional(),
       amount: Yup.number().optional(),
-      type: Yup.string().oneOf(["income", "expense"]).optional(),
+      type: Yup.string().oneOf(["receita", "despesa"]).optional(),
       categoryTitle: Yup.string().optional(),
     });
 
@@ -82,6 +83,22 @@ class TransactionController {
       });
     } catch (err) {
       return res.status(400).json({ error: err.message });
+    }
+  }
+
+  async getReport(req, res) {
+    const { startDate, endDate } = req.query;
+
+    try {
+      const report = await TransactionService.generateReport(
+        req.userId,
+        startDate,
+        endDate
+      );
+
+      return res.json(report);
+    } catch (err) {
+      return res.status(500).json({ error: "Error generating report" });
     }
   }
 }

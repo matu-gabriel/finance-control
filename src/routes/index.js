@@ -23,6 +23,7 @@ router.delete("/category/:categoryId", CategoryController.delete);
 
 router.post("/transaction", TransactionController.store);
 router.get("/transaction", TransactionController.index);
+router.get("/transaction/report", TransactionController.getReport);
 router.put("/transaction/:transactionId", TransactionController.update);
 
 export default router;

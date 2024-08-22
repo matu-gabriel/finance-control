@@ -40,7 +40,7 @@ class TransactionService {
     }
   }
 
-  static async getTransactions(userId, startDate, endDate, type) {
+  static async getTransactions(userId, startDate, endDate, type, sortBy) {
     const query = { user: userId };
 
     if (startDate && endDate) {
@@ -54,12 +54,52 @@ class TransactionService {
       query.type = type;
     }
 
-    const transactions = await Transaction.find(query).populate(
-      "category",
-      "title"
-    );
+    let sort = {};
+
+    if (sortBy) {
+      const [key, order] = sortBy.split(":");
+      sort[key] = order === "desc" ? -1 : 1;
+    }
+
+    const transactions = await Transaction.find(query)
+      .populate("category", "title")
+      .sort(sort);
 
     return transactions;
+  }
+
+  static async generateReport(userId, startDate, endDate) {
+    const query = { user: userId };
+
+    if (startDate && endDate) {
+      query.date = {
+        $gte: new Date(startDate),
+        $lte: new Date(endDate),
+      };
+    } else if (startDate) {
+      query.date = { $gte: new Date(startDate) };
+    } else if (endDate) {
+      query.date = { $lte: new Date(endDate) };
+    }
+
+    const transactions = await Transaction.find(query);
+
+    const report = transactions.reduce(
+      (acc, transaction) => {
+        if (transaction.type === "receita") {
+          acc.receita += transaction.amount;
+        } else if (transaction.type === "despesa") {
+          acc.despesa += transaction.amount;
+        }
+
+        return acc;
+      },
+      { receita: 0, despesa: 0 }
+    );
+
+    report.balanço = report.receita - report.despesa;
+
+    return report;
   }
 
   static async updateTransaction(transactionId, user, data) {
