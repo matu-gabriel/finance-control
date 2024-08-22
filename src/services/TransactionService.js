@@ -40,7 +40,7 @@ class TransactionService {
     }
   }
 
-  static async getTransactionsByDate(userId, startDate, endDate) {
+  static async getTransactions(userId, startDate, endDate, type) {
     const query = { user: userId };
 
     if (startDate && endDate) {
@@ -48,10 +48,10 @@ class TransactionService {
         $gte: new Date(startDate),
         $lte: new Date(endDate),
       };
-    } else if (startDate) {
-      query.date = { $gte: new Date(startDate) };
-    } else if (endDate) {
-      query.date = { $lte: new Date(endDate) };
+    }
+
+    if (type) {
+      query.type = type;
     }
 
     const transactions = await Transaction.find(query).populate(
