@@ -36,9 +36,13 @@ class TransactionController {
   }
 
   async index(req, res) {
+    const { startDate, endDate } = req.query;
+
     try {
-      const transactions = await TransactionService.getTransactionByUser(
-        req.userId
+      const transactions = await TransactionService.getTransactionsByDate(
+        req.userId,
+        startDate,
+        endDate
       );
       return res.status(200).json(transactions);
     } catch (err) {

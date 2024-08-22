@@ -40,6 +40,28 @@ class TransactionService {
     }
   }
 
+  static async getTransactionsByDate(userId, startDate, endDate) {
+    const query = { user: userId };
+
+    if (startDate && endDate) {
+      query.date = {
+        $gte: new Date(startDate),
+        $lte: new Date(endDate),
+      };
+    } else if (startDate) {
+      query.date = { $gte: new Date(startDate) };
+    } else if (endDate) {
+      query.date = { $lte: new Date(endDate) };
+    }
+
+    const transactions = await Transaction.find(query).populate(
+      "category",
+      "title"
+    );
+
+    return transactions;
+  }
+
   static async updateTransaction(transactionId, user, data) {
     try {
       if (!mongoose.Types.ObjectId.isValid(transactionId)) {
