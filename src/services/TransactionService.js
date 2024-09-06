@@ -132,6 +132,28 @@ class TransactionService {
       throw new Error("Error updating transaction");
     }
   }
+
+  static async deleteTransaction(transactionId, user) {
+    try {
+      if (!mongoose.Types.ObjectId.isValid(transactionId)) {
+        throw new Error("Invalid Transaction ID");
+      }
+
+      const transacion = await Transaction.findOne({
+        _id: transactionId,
+        user,
+      });
+
+      if (!transacion) {
+        throw new Error("Transaction not found");
+      }
+
+      await transacion.deleteOne({ _id: transactionId, user });
+    } catch (err) {
+      console.error("Error deleting transacion:", err.message);
+      throw new Error("Error deleting transacion");
+    }
+  }
 }
 
 export default TransactionService;

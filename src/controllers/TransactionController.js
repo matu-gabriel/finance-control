@@ -101,6 +101,20 @@ class TransactionController {
       return res.status(500).json({ error: "Error generating report" });
     }
   }
+
+  async delete(req, res) {
+    const { transactionId } = req.params;
+    const userId = req.userId;
+    try {
+      const result = await TransactionService.deleteTransaction(
+        transactionId,
+        userId
+      );
+      return res.status(200).json(result);
+    } catch (err) {
+      return res.status(400).json({ error: err.message });
+    }
+  }
 }
 
 export default new TransactionController();

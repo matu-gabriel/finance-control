@@ -25,5 +25,6 @@ router.post("/transaction", TransactionController.store);
 router.get("/transaction", TransactionController.index);
 router.get("/transaction/report", TransactionController.getReport);
 router.put("/transaction/:transactionId", TransactionController.update);
+router.delete("/transaction/:transactionId", TransactionController.delete);
 
 export default router;
