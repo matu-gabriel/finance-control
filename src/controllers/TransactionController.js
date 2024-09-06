@@ -110,7 +110,11 @@ class TransactionController {
         transactionId,
         userId
       );
-      return res.status(200).json(result);
+
+      // const report = await TransactionService.getReport(req.userId);
+      return res
+        .status(200)
+        .json({ messege: "Transaction deleted successfully", result });
     } catch (err) {
       return res.status(400).json({ error: err.message });
     }

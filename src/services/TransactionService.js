@@ -154,6 +154,26 @@ class TransactionService {
       throw new Error("Error deleting transacion");
     }
   }
+
+  // static async getReport(user) {
+  //   const transactions = await Transaction.find({ user });
+
+  //   const despesa = transactions
+  //     .filter((transaction) => transaction.type === "despesa")
+  //     .reduce((total, transaction) => total + transaction.amount, 0);
+
+  //   const receita = transactions
+  //     .filter((transacion) => transacion.type === "receita")
+  //     .reduce((total, transacion) => total + transacion.amount, 0);
+
+  //   const balanço = despesa - receita;
+
+  //   return {
+  //     despesa,
+  //     receita,
+  //     balanço,
+  //   };
+  // }
 }
 
 export default TransactionService;
