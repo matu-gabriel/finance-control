@@ -22,7 +22,10 @@ class TransactionService {
         user: userId,
       });
 
-      return await Transaction.findById(transaction._id).populate("category");
+      return await Transaction.findById(transaction._id).populate(
+        "category",
+        "title"
+      );
     } catch (err) {
       console.error("Error creating transaction:", err.message);
       throw err;
@@ -174,6 +177,40 @@ class TransactionService {
   //     balanço,
   //   };
   // }
+
+  static async getSummaryByCategory(user) {
+    try {
+      // Buscar transações por usuário
+      const transactions = await Transaction.find({ user }).populate(
+        "category"
+      );
+
+      // Agrupamento por categoria e soma os valores
+      const summary = transactions.reduce((acc, transaction) => {
+        const categoryTitle = transaction.category.title;
+        // Verifica se a categoria já está no objeto de resumo, se não, inicializa
+        if (!acc[categoryTitle]) {
+          acc[categoryTitle] = {
+            totalDespesa: 0,
+            totalReceita: 0,
+          };
+        }
+
+        // Soma os valores dependendo se a transação é de despesa ou receita
+        if (transaction.type === "despesa") {
+          acc[categoryTitle].totalDespesa += transaction.amount;
+        } else if (transaction.type === "receita") {
+          acc[categoryTitle].totalReceita += transaction.amount;
+        }
+
+        return acc;
+      }, {});
+
+      return summary; // Retorna o resumo
+    } catch (error) {
+      throw new Error("Error fetching summary by category");
+    }
+  }
 }
 
 export default TransactionService;
