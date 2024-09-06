@@ -119,6 +119,21 @@ class TransactionController {
       return res.status(400).json({ error: err.message });
     }
   }
+
+  async getCategorySummary(req, res) {
+    try {
+      // Chama o serviço que retorna o resumo por categoria para o usuário autenticado
+      const summary = await TransactionService.getSummaryByCategory(req.userId);
+
+      // Retorna o resumo em formato JSON
+      return res.status(200).json(summary);
+    } catch (error) {
+      // Em caso de erro, retorna uma mensagem de erro
+      return res
+        .status(400)
+        .json({ error: "Error fetching summary by category" });
+    }
+  }
 }
 
 export default new TransactionController();
