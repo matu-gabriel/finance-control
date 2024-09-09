@@ -28,6 +28,7 @@ router.get(
   "/transaction/summary/category",
   TransactionController.getCategorySummary
 );
+router.get("/transaction/summary/date", TransactionController.getReportByDate);
 router.put("/transaction/:transactionId", TransactionController.update);
 router.delete("/transaction/:transactionId", TransactionController.delete);
 

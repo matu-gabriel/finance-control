@@ -77,12 +77,14 @@ class TransactionService {
     if (startDate && endDate) {
       query.date = {
         $gte: new Date(startDate),
-        $lte: new Date(endDate),
+        $lte: new Date(new Date(endDate).setHours(23, 59, 59, 999)),
       };
     } else if (startDate) {
       query.date = { $gte: new Date(startDate) };
     } else if (endDate) {
-      query.date = { $lte: new Date(endDate) };
+      query.date = {
+        $lte: new Date(new Date(endDate).setHours(23, 59, 59, 999)),
+      };
     }
 
     const transactions = await Transaction.find(query);
@@ -209,6 +211,49 @@ class TransactionService {
       return summary; // Retorna o resumo
     } catch (error) {
       throw new Error("Error fetching summary by category");
+    }
+  }
+
+  static async getReportByDate(startDate, endDate) {
+    try {
+      // Verifica se startDate e endDate estão definidos
+      if (!startDate || !endDate) {
+        throw new Error("Start date and end date are required");
+      }
+
+      // Ajustar o startDate e endDate para horário local
+      const adjustedStartDate = new Date(startDate);
+      const adjustedEndDate = new Date(endDate);
+      adjustedEndDate.setUTCHours(23, 59, 59, 999);
+
+      // BUscar as transções no intervalo de datas
+      const transactions = await Transaction.find({
+        date: {
+          $gte: adjustedStartDate,
+          $lte: adjustedEndDate,
+        },
+      }).populate("category", "title");
+
+      // Criação de um objeto para armazenar o resumo por categoria
+      const summary = transactions.reduce((acc, transacion) => {
+        const categoryName = transacion.category.title;
+        if (!acc[categoryName]) {
+          acc[categoryName] = { totalDespesa: 0, totalReceita: 0 };
+        }
+
+        // Atualiza o total baseado no tipo de transação
+        if (transacion.type === "despesa") {
+          acc[categoryName].totalDespesa += transacion.amount;
+        } else if (transacion.type === "receita") {
+          acc[categoryName].totalReceita += transacion.amount;
+        }
+
+        return acc;
+      }, {});
+
+      return summary;
+    } catch (error) {
+      throw new Error("Error fetching summary by category and date");
     }
   }
 }

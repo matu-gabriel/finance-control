@@ -134,6 +134,27 @@ class TransactionController {
         .json({ error: "Error fetching summary by category" });
     }
   }
+
+  async getReportByDate(req, res) {
+    try {
+      const { startDate, endDate } = req.query;
+      if (!startDate || !endDate) {
+        return res
+          .status(400)
+          .json({ error: "Start date and end date are required" });
+      }
+
+      const summary = await TransactionService.getReportByDate(
+        startDate,
+        endDate
+      );
+      return res.status(200).json(summary);
+    } catch (error) {
+      res
+        .status(500)
+        .json({ error: "Error fetching report by date controller" });
+    }
+  }
 }
 
 export default new TransactionController();
