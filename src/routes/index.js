@@ -13,6 +13,7 @@ router.get("/", (req, res) => {
 
 router.post("/user", UserController.store);
 router.post("/session", SessionController.store);
+router.post("/session-google", SessionController.googleLogin);
 
 router.use(authMiddleware);
 

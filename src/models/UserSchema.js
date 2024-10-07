@@ -14,14 +14,21 @@ const UserSchema = new mongoose.Schema(
     },
     password_hash: {
       type: String,
-      required: true,
+      required: false,
+    },
+    google_id: {
+      type: String, // Armazena o ID do Google para login social
+      required: false,
+      sparse: true,
     },
   },
   { timestamps: true }
 );
 
 UserSchema.pre("save", async function (next) {
-  this.password_hash = await bcrypt.hash(this.password_hash, 10);
+  if (this.password_hash) {
+    this.password_hash = await bcrypt.hash(this.password_hash, 10);
+  }
   next();
 });
 
