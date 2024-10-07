@@ -234,6 +234,13 @@ class TransactionService {
         },
       }).populate("category", "title");
 
+      const formattedTransactions = transactions.map((transacion) => ({
+        title: transacion.title,
+        amount: transacion.amount,
+        category: transacion.category.title,
+        date: transacion.date.toISOString().split("T")[0],
+      }));
+
       // Criação de um objeto para armazenar o resumo por categoria
       const summary = transactions.reduce((acc, transacion) => {
         const categoryName = transacion.category.title;
@@ -251,7 +258,10 @@ class TransactionService {
         return acc;
       }, {});
 
-      return summary;
+      return {
+        transactions: formattedTransactions,
+        summary,
+      };
     } catch (error) {
       throw new Error("Error fetching summary by category and date");
     }

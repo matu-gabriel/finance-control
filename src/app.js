@@ -1,9 +1,11 @@
 import express from "express";
 import router from "./routes";
+import cors from "cors";
 
 class App {
   constructor() {
     this.app = express();
+    this.app.use(cors());
     this.middleware();
     this.routes();
   }
