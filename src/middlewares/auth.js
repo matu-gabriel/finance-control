@@ -17,7 +17,7 @@ const authMiddleware = (req, res, next) => {
       req.userId = decoded.id;
     });
   } catch (err) {
-    return res.status(401).json({ messege: "Token invalid" });
+    return res.status(401).json({ message: "Token invalid" });
   }
   next();
 };

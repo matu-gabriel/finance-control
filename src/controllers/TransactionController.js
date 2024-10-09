@@ -48,7 +48,7 @@ class TransactionController {
       );
       return res.status(200).json(transactions);
     } catch (err) {
-      return res.status(400).json({ error: err.messege });
+      return res.status(400).json({ error: err.message });
     }
   }
 
@@ -114,7 +114,7 @@ class TransactionController {
       // const report = await TransactionService.getReport(req.userId);
       return res
         .status(200)
-        .json({ messege: "Transaction deleted successfully", result });
+        .json({ message: "Transaction deleted successfully", result });
     } catch (err) {
       return res.status(400).json({ error: err.message });
     }

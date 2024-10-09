@@ -21,12 +21,12 @@ class UserController {
 
     const userExist = await UserService.findUserByEmail(email);
     if (userExist) {
-      return res.status(400).json({ messege: "User already exist" });
+      return res.status(400).json({ message: "User already exists" });
     }
 
     const user = await UserService.createUser(req.body);
 
-    return res.status(201).json({ messege: "User created successfully", user });
+    return res.status(201).json({ message: "User created successfully", user });
   }
 }
 

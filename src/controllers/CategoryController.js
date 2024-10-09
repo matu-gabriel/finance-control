@@ -37,7 +37,7 @@ class CategoryController {
       const categories = await CategoryService.getCategoriesByUser(req.userId);
       return res.status(200).json(categories);
     } catch (err) {
-      return res.status(400).json({ error: err.messege });
+      return res.status(400).json({ error: err.message });
     }
   }
 

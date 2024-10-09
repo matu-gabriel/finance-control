@@ -8,7 +8,7 @@ import TransactionController from "../controllers/TransactionController";
 const router = new Router();
 
 router.get("/", (req, res) => {
-  res.status(200).json({ messege: "Hello world" });
+  res.status(200).json({ message: "Hello world" });
 });
 
 router.post("/user", UserController.store);
