@@ -2,9 +2,9 @@ import User from "../models/UserSchema";
 
 class UserService {
   static async createUser(data) {
-    const { name, email, password_hash } = data;
+    const { name, email, password_hash, picture } = data;
 
-    const userData = { name, email };
+    const userData = { name, email, picture };
     if (password_hash) {
       userData.password_hash = password_hash;
     }

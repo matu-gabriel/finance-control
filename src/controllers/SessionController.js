@@ -65,7 +65,7 @@ class SessionController {
 
       const payload = ticket.getPayload();
 
-      const { email, name, sub: googleId } = payload; // Extrai informações do payload
+      const { email, name, sub: googleId, picture } = payload; // Extrai informações do payload
 
       let user = await UserService.findUserByEmail(email);
 
@@ -74,6 +74,7 @@ class SessionController {
         user = await UserService.createUser({
           email,
           name,
+          picture,
         });
       }
 
@@ -93,6 +94,7 @@ class SessionController {
         name: user.name,
         email: user.email,
         token: tokenJWT,
+        picture: user.picture || picture,
       });
     } catch (error) {
       console.error("Erro ao fazer login com o Google:", error);
