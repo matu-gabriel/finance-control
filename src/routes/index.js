@@ -18,7 +18,7 @@ router.post("/session-google", SessionController.googleLogin);
 router.use(authMiddleware);
 
 router.post("/category", CategoryController.store);
-router.get("/category", CategoryController.index);
+router.get("/categories", CategoryController.index);
 router.put("/category/:id", CategoryController.update);
 router.delete("/category/:categoryId", CategoryController.delete);
 
