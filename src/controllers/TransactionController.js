@@ -36,15 +36,15 @@ class TransactionController {
   }
 
   async index(req, res) {
-    const { startDate, endDate, type, sortBy } = req.query;
+    const { startDate, endDate, title, categoryId } = req.query;
 
     try {
       const transactions = await TransactionService.getTransactions(
         req.userId,
         startDate,
         endDate,
-        type,
-        sortBy
+        title,
+        categoryId
       );
       return res.status(200).json(transactions);
     } catch (err) {

@@ -32,18 +32,18 @@ class TransactionService {
     }
   }
 
-  static async getTransactionByUser(userId) {
-    try {
-      const transactions = await Transaction.find({ user: userId })
-        .populate("category", "title")
-        .exec();
-      return transactions;
-    } catch (err) {
-      throw new Error("Error fetching transactions");
-    }
-  }
+  // static async getTransactionByUser(userId) {
+  //   try {
+  //     const transactions = await Transaction.find({ user: userId })
+  //       .populate("category", "title")
+  //       .exec();
+  //     return transactions;
+  //   } catch (err) {
+  //     throw new Error("Error fetching transactions");
+  //   }
+  // }
 
-  static async getTransactions(userId, startDate, endDate, type, sortBy) {
+  static async getTransactions(userId, startDate, endDate, title, categoryId) {
     const query = { user: userId };
 
     if (startDate && endDate) {
@@ -53,20 +53,15 @@ class TransactionService {
       };
     }
 
-    if (type) {
-      query.type = type;
+    // Filtro por título (usando regex para busca parcial)
+    if (title) {
+      query.title = { $regex: title, $options: "i" }; // Filtra por título, sem diferenciar maiúsculas/minúsculas
     }
 
-    let sort = {};
-
-    if (sortBy) {
-      const [key, order] = sortBy.split(":");
-      sort[key] = order === "desc" ? -1 : 1;
-    }
-
-    const transactions = await Transaction.find(query)
-      .populate("category", "title")
-      .sort(sort);
+    const transactions = await Transaction.find(query).populate(
+      "category",
+      "title"
+    );
 
     return transactions;
   }
