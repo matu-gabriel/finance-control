@@ -82,7 +82,10 @@ class TransactionService {
       };
     }
 
-    const transactions = await Transaction.find(query);
+    const transactions = await Transaction.find(query).populate(
+      "category",
+      "title color"
+    );
 
     const report = transactions.reduce(
       (acc, transaction) => {
@@ -90,11 +93,17 @@ class TransactionService {
           acc.receita += transaction.amount;
         } else if (transaction.type === "despesa") {
           acc.despesa += transaction.amount;
+          acc.despesasList.push({
+            _id: transaction._id,
+            title: transaction.title,
+            amount: transaction.amount,
+            color: transaction.category.color, // Inclui a cor
+          });
         }
 
         return acc;
       },
-      { receita: 0, despesa: 0 }
+      { receita: 0, despesa: 0, despesasList: [] }
     );
 
     report.balanço = report.receita - report.despesa;
@@ -106,6 +115,7 @@ class TransactionService {
         despesa: report.despesa,
         balanço: report.balanço,
       },
+      despesa: report.despesasList,
     };
   }
 
