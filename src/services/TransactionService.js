@@ -24,7 +24,7 @@ class TransactionService {
 
       return await Transaction.findById(transaction._id).populate(
         "category",
-        "title"
+        "title color"
       );
     } catch (err) {
       console.error("Error creating transaction:", err.message);
@@ -60,7 +60,7 @@ class TransactionService {
 
     const transactions = await Transaction.find(query).populate(
       "category",
-      "title"
+      "title color"
     );
 
     return transactions;
@@ -99,7 +99,14 @@ class TransactionService {
 
     report.balanço = report.receita - report.despesa;
 
-    return report;
+    return {
+      balanço: {
+        _id: null,
+        receita: report.receita,
+        despesa: report.despesa,
+        balanço: report.balanço,
+      },
+    };
   }
 
   static async updateTransaction(transactionId, user, data) {
