@@ -129,6 +129,7 @@ class TransactionController {
       return res.status(200).json(summary);
     } catch (error) {
       // Em caso de erro, retorna uma mensagem de erro
+      console.error("Error fetching summary by category:", error);
       return res
         .status(400)
         .json({ error: "Error fetching summary by category" });

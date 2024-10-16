@@ -58,6 +58,11 @@ class TransactionService {
       query.title = { $regex: title, $options: "i" }; // Filtra por título, sem diferenciar maiúsculas/minúsculas
     }
 
+    // Filtro por categoria
+    if (categoryId) {
+      query.category = categoryId; // Filtra por ID de categoria
+    }
+
     const transactions = await Transaction.find(query).populate(
       "category",
       "title color"
@@ -201,10 +206,13 @@ class TransactionService {
 
       // Agrupamento por categoria e soma os valores
       const summary = transactions.reduce((acc, transaction) => {
-        const categoryTitle = transaction.category.title;
+        const categoryId = transaction.category._id;
         // Verifica se a categoria já está no objeto de resumo, se não, inicializa
-        if (!acc[categoryTitle]) {
-          acc[categoryTitle] = {
+        if (!acc[categoryId]) {
+          acc[categoryId] = {
+            _id: categoryId,
+            title: transaction.category.title,
+            color: transaction.category.color,
             totalDespesa: 0,
             totalReceita: 0,
           };
@@ -212,17 +220,17 @@ class TransactionService {
 
         // Soma os valores dependendo se a transação é de despesa ou receita
         if (transaction.type === "despesa") {
-          acc[categoryTitle].totalDespesa += transaction.amount;
+          acc[categoryId].totalDespesa += transaction.amount;
         } else if (transaction.type === "receita") {
-          acc[categoryTitle].totalReceita += transaction.amount;
+          acc[categoryId].totalReceita += transaction.amount;
         }
 
         return acc;
       }, {});
 
-      return summary; // Retorna o resumo
-    } catch (error) {
-      throw new Error("Error fetching summary by category");
+      return Object.values(summary); // Retorna o resumo
+    } catch (err) {
+      throw new Error(err.message);
     }
   }
 
