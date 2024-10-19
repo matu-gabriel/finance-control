@@ -1,6 +1,7 @@
 import mongoose from "mongoose";
 import Category from "../models/CategorySchema";
 import Transaction from "../models/TransactionSchema";
+import { date } from "yup";
 
 class TransactionService {
   static async createTransaction({ title, amount, type, categoryId, userId }) {
@@ -18,7 +19,7 @@ class TransactionService {
         title,
         amount,
         type,
-        category: categoryId,
+        category,
         user: userId,
       });
 
@@ -74,54 +75,135 @@ class TransactionService {
   static async generateReport(userId, startDate, endDate) {
     const query = { user: userId };
 
-    if (startDate && endDate) {
+    if (startDate || endDate) {
       query.date = {
-        $gte: new Date(startDate),
-        $lte: new Date(new Date(endDate).setHours(23, 59, 59, 999)),
-      };
-    } else if (startDate) {
-      query.date = { $gte: new Date(startDate) };
-    } else if (endDate) {
-      query.date = {
-        $lte: new Date(new Date(endDate).setHours(23, 59, 59, 999)),
+        ...(startDate && { $gte: new Date(startDate) }),
+        ...(endDate && { $lte: new Date(endDate) }),
       };
     }
 
-    const transactions = await Transaction.find(query).populate(
-      "category",
-      "title color"
-    );
+    const despesas = await Transaction.aggregate()
+      .match({
+        date: {
+          $gte: new Date(startDate),
+          $lte: new Date(endDate),
+        },
+      })
+      .lookup({
+        from: "categories",
+        localField: "category",
+        foreignField: "_id",
+        as: "totalDespesa",
+      })
+      .unwind({
+        path: "$totalDespesa",
+        preserveNullAndEmptyArrays: true,
+      })
+      .group({
+        _id: "$totalDespesa._id",
+        title: {
+          $first: "$totalDespesa.title",
+        },
+        color: {
+          $first: "$totalDespesa.color",
+        },
+        amount: {
+          $sum: "$amount",
+        },
+      });
 
-    const report = transactions.reduce(
-      (acc, transaction) => {
-        if (transaction.type === "receita") {
-          acc.receita += transaction.amount;
-        } else if (transaction.type === "despesa") {
-          acc.despesa += transaction.amount;
-          acc.despesasList.push({
-            _id: transaction._id,
-            title: transaction.title,
-            amount: transaction.amount,
-            color: transaction.category.color, // Inclui a cor
-          });
-        }
-
-        return acc;
-      },
-      { receita: 0, despesa: 0, despesasList: [] }
-    );
-
-    report.balanço = report.receita - report.despesa;
-
-    return {
-      balanço: {
+    const result = await Transaction.aggregate()
+      .match({
+        date: {
+          $gte: new Date(startDate),
+          $lte: new Date(endDate),
+        },
+      })
+      .project({
+        _id: 0,
+        category: 1,
+        receita: {
+          $cond: [
+            {
+              $eq: ["$type", "receita"],
+            },
+            "$amount",
+            0,
+          ],
+        },
+        despesa: {
+          $cond: [
+            {
+              $eq: ["$type", "despesa"],
+            },
+            "$amount",
+            0,
+          ],
+        },
+      })
+      .group({
         _id: null,
-        receita: report.receita,
-        despesa: report.despesa,
-        balanço: report.balanço,
-      },
-      despesa: report.despesasList,
-    };
+        receita: {
+          $sum: "$receita",
+        },
+        despesa: {
+          $sum: "$despesa",
+        },
+      })
+      .addFields({
+        balanço: {
+          $subtract: ["$receita", "$despesa"],
+        },
+      });
+
+    if (result.length === 0) {
+      return [
+        {
+          _id: null,
+          receita: 0,
+          despesa: 0,
+          balanço: 0,
+        },
+      ];
+    }
+
+    return { result, despesas };
+
+    // const transactions = await Transaction.find(query).populate(
+    //   "category",
+    //   "title color"
+    // );
+
+    // const report = transactions.reduce(
+    //   (acc, transaction) => {
+    //     if (transaction.type === "receita") {
+    //       acc.receita += transaction.amount;
+    //     } else if (transaction.type === "despesa") {
+    //       acc.despesa += transaction.amount;
+    //       acc.despesasList.push({
+    //         _id: transaction._id,
+    //         title: transaction.title,
+    //         amount: transaction.amount,
+    //         color: transaction.category.color, // Inclui a cor
+    //       });
+    //     }
+
+    //     return acc;
+    //   },
+    //   { receita: 0, despesa: 0, despesasList: [] }
+    // );
+
+    // report.balanço = report.receita - report.despesa;
+
+    // return {
+    //   balanço: {
+    //     _id: null,
+    //     receita: report.receita,
+    //     despesa: report.despesa,
+    //     balanço: report.balanço,
+    //   },
+    //   despesa: report.despesasList,
+    // };
   }
 
   static async updateTransaction(transactionId, user, data) {
