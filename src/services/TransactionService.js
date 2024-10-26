@@ -1,7 +1,6 @@
 import mongoose from "mongoose";
 import Category from "../models/CategorySchema";
 import Transaction from "../models/TransactionSchema";
-import { date } from "yup";
 
 class TransactionService {
   static async createTransaction({ title, amount, type, categoryId, userId }) {
@@ -32,17 +31,6 @@ class TransactionService {
       throw err;
     }
   }
-
-  // static async getTransactionByUser(userId) {
-  //   try {
-  //     const transactions = await Transaction.find({ user: userId })
-  //       .populate("category", "title")
-  //       .exec();
-  //     return transactions;
-  //   } catch (err) {
-  //     throw new Error("Error fetching transactions");
-  //   }
-  // }
 
   static async getTransactions(userId, startDate, endDate, title, categoryId) {
     const query = { user: userId };
@@ -82,128 +70,41 @@ class TransactionService {
       };
     }
 
-    const despesas = await Transaction.aggregate()
-      .match({
-        date: {
-          $gte: new Date(startDate),
-          $lte: new Date(endDate),
-        },
-      })
-      .lookup({
-        from: "categories",
-        localField: "category",
-        foreignField: "_id",
-        as: "totalDespesa",
-      })
-      .unwind({
-        path: "$totalDespesa",
-        preserveNullAndEmptyArrays: true,
-      })
-      .group({
-        _id: "$totalDespesa._id",
-        title: {
-          $first: "$totalDespesa.title",
-        },
-        color: {
-          $first: "$totalDespesa.color",
-        },
-        amount: {
-          $sum: "$amount",
-        },
-      });
+    const transactions = await Transaction.find(query).populate(
+      "category",
+      "title color"
+    );
 
-    const result = await Transaction.aggregate()
-      .match({
-        date: {
-          $gte: new Date(startDate),
-          $lte: new Date(endDate),
-        },
-      })
-      .project({
-        _id: 0,
-        category: 1,
-        receita: {
-          $cond: [
-            {
-              $eq: ["$type", "receita"],
-            },
-            "$amount",
-            0,
-          ],
-        },
-        despesa: {
-          $cond: [
-            {
-              $eq: ["$type", "despesa"],
-            },
-            "$amount",
-            0,
-          ],
-        },
-      })
-      .group({
+    const report = transactions.reduce(
+      (acc, transaction) => {
+        if (transaction.type === "receita") {
+          acc.receita += transaction.amount;
+        } else if (transaction.type === "despesa") {
+          acc.despesa += transaction.amount;
+          acc.despesasList.push({
+            _id: transaction.category._id,
+            title: transaction.title,
+            amount: transaction.amount,
+            color: transaction.category.color, // Inclui a cor
+          });
+        }
+
+        return acc;
+      },
+      { receita: 0, despesa: 0, despesasList: [] }
+    );
+
+    report.balanço = report.receita - report.despesa;
+
+    return {
+      balanço: {
         _id: null,
-        receita: {
-          $sum: "$receita",
-        },
-        despesa: {
-          $sum: "$despesa",
-        },
-      })
-      .addFields({
-        balanço: {
-          $subtract: ["$receita", "$despesa"],
-        },
-      });
-
-    if (result.length === 0) {
-      return [
-        {
-          _id: null,
-          receita: 0,
-          despesa: 0,
-          balanço: 0,
-        },
-      ];
-    }
-
-    return { result, despesas };
-
-    // const transactions = await Transaction.find(query).populate(
-    //   "category",
-    //   "title color"
-    // );
-
-    // const report = transactions.reduce(
-    //   (acc, transaction) => {
-    //     if (transaction.type === "receita") {
-    //       acc.receita += transaction.amount;
-    //     } else if (transaction.type === "despesa") {
-    //       acc.despesa += transaction.amount;
-    //       acc.despesasList.push({
-    //         _id: transaction._id,
-    //         title: transaction.title,
-    //         amount: transaction.amount,
-    //         color: transaction.category.color, // Inclui a cor
-    //       });
-    //     }
-
-    //     return acc;
-    //   },
-    //   { receita: 0, despesa: 0, despesasList: [] }
-    // );
-
-    // report.balanço = report.receita - report.despesa;
-
-    // return {
-    //   balanço: {
-    //     _id: null,
-    //     receita: report.receita,
-    //     despesa: report.despesa,
-    //     balanço: report.balanço,
-    //   },
-    //   despesa: report.despesasList,
-    // };
+        receita: report.receita,
+        despesa: report.despesa,
+        balanço: report.balanço,
+      },
+      despesa: report.despesasList,
+    };
   }
 
   static async updateTransaction(transactionId, user, data) {
@@ -258,26 +159,6 @@ class TransactionService {
       throw new Error("Error deleting transacion");
     }
   }
-
-  // static async getReport(user) {
-  //   const transactions = await Transaction.find({ user });
-
-  //   const despesa = transactions
-  //     .filter((transaction) => transaction.type === "despesa")
-  //     .reduce((total, transaction) => total + transaction.amount, 0);
-
-  //   const receita = transactions
-  //     .filter((transacion) => transacion.type === "receita")
-  //     .reduce((total, transacion) => total + transacion.amount, 0);
-
-  //   const balanço = despesa - receita;
-
-  //   return {
-  //     despesa,
-  //     receita,
-  //     balanço,
-  //   };
-  // }
 
   static async getSummaryByCategory(user) {
     try {
