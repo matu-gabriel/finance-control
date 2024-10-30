@@ -197,57 +197,43 @@ class TransactionService {
     }
   }
 
-  static async getReportByDate(startDate, endDate) {
-    try {
-      // Verifica se startDate e endDate estão definidos
-      if (!startDate || !endDate) {
-        throw new Error("Start date and end date are required");
-      }
+  static async getFinanceEvolution(userId, year) {
+    const startOfYear = new Date(`${year}-01-01`);
+    const endOfYear = new Date(`${year}-12-31`);
 
-      // Ajustar o startDate e endDate para horário local
-      const adjustedStartDate = new Date(startDate);
-      const adjustedEndDate = new Date(endDate);
-      adjustedEndDate.setUTCHours(23, 59, 59, 999);
+    const query = {
+      user: new mongoose.Types.ObjectId(userId),
+      date: {
+        $gte: startOfYear,
+        $lte: endOfYear,
+      },
+    };
 
-      // BUscar as transções no intervalo de datas
-      const transactions = await Transaction.find({
-        date: {
-          $gte: adjustedStartDate,
-          $lte: adjustedEndDate,
+    const financeEvolution = await Transaction.aggregate()
+      .match(query)
+      .project({
+        year: { $year: "$date" },
+        month: { $month: "$date" },
+        receita: {
+          $cond: [{ $eq: ["$type", "receita"] }, "$amount", 0],
         },
-      }).populate("category", "title");
+        despesa: {
+          $cond: [{ $eq: ["$type", "despesa"] }, "$amount", 0],
+        },
+      })
+      .group({
+        _id: ["$year", "$month"],
+        receita: { $sum: "$receita" },
+        despesa: { $sum: "$despesa" },
+      })
+      .addFields({
+        balanço: { $subtract: ["$receita", "$despesa"] },
+      })
+      .sort({ "_id.0": 1, "_id.1": 1 });
 
-      const formattedTransactions = transactions.map((transacion) => ({
-        title: transacion.title,
-        amount: transacion.amount,
-        category: transacion.category.title,
-        date: transacion.date.toISOString().split("T")[0],
-      }));
+    console.log(financeEvolution);
 
-      // Criação de um objeto para armazenar o resumo por categoria
-      const summary = transactions.reduce((acc, transacion) => {
-        const categoryName = transacion.category.title;
-        if (!acc[categoryName]) {
-          acc[categoryName] = { totalDespesa: 0, totalReceita: 0 };
-        }
-
-        // Atualiza o total baseado no tipo de transação
-        if (transacion.type === "despesa") {
-          acc[categoryName].totalDespesa += transacion.amount;
-        } else if (transacion.type === "receita") {
-          acc[categoryName].totalReceita += transacion.amount;
-        }
-
-        return acc;
-      }, {});
-
-      return {
-        transactions: formattedTransactions,
-        summary,
-      };
-    } catch (error) {
-      throw new Error("Error fetching summary by category and date");
-    }
+    return financeEvolution;
   }
 }
 

@@ -29,7 +29,10 @@ router.get(
   "/transaction/summary/category",
   TransactionController.getCategorySummary
 );
-router.get("/transaction/summary/date", TransactionController.getReportByDate);
+router.get(
+  "/transaction/finance-evolution",
+  TransactionController.getFinanceEvolution
+);
 router.put("/transaction/:transactionId", TransactionController.update);
 router.delete("/transaction/:transactionId", TransactionController.delete);
 

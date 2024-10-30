@@ -136,24 +136,22 @@ class TransactionController {
     }
   }
 
-  async getReportByDate(req, res) {
-    try {
-      const { startDate, endDate } = req.query;
-      if (!startDate || !endDate) {
-        return res
-          .status(400)
-          .json({ error: "Start date and end date are required" });
-      }
+  async getFinanceEvolution(req, res) {
+    const { year } = req.query;
+    const userId = req.userId;
 
-      const summary = await TransactionService.getReportByDate(
-        startDate,
-        endDate
+    try {
+      const financeEvolution = await TransactionService.getFinanceEvolution(
+        userId,
+        year
       );
-      return res.status(200).json(summary);
+
+      return res.status(200).json(financeEvolution);
     } catch (error) {
-      res
+      console.error("Error fetching finance evolution:", error);
+      return res
         .status(500)
-        .json({ error: "Error fetching report by date controller" });
+        .json({ error: "Error fetching finance evolution" });
     }
   }
 }
