@@ -1,5 +1,5 @@
 import * as Yup from "yup";
-import TransactionService from "../services/TransactionService";
+import TransactionService from "../services/TransactionService.js";
 
 class TransactionController {
   async store(req, res) {

@@ -1,9 +1,9 @@
 import { Router } from "express";
-import UserController from "../controllers/UserController";
-import SessionController from "../controllers/SessionController";
-import CategoryController from "../controllers/CategoryController";
-import authMiddleware from "../middlewares/auth";
-import TransactionController from "../controllers/TransactionController";
+import UserController from "../controllers/UserController.js";
+import SessionController from "../controllers/SessionController.js";
+import CategoryController from "../controllers/CategoryController.js";
+import authMiddleware from "../middlewares/auth.js";
+import TransactionController from "../controllers/TransactionController.js";
 
 const router = new Router();
 

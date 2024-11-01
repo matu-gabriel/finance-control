@@ -1,6 +1,6 @@
 import mongoose from "mongoose";
-import Category from "../models/CategorySchema";
-import Transaction from "../models/TransactionSchema";
+import Category from "../models/CategorySchema.js";
+import Transaction from "../models/TransactionSchema.js";
 
 class TransactionService {
   static async createTransaction({ title, amount, type, categoryId, userId }) {

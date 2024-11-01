@@ -1,5 +1,5 @@
 import mongoose from "mongoose";
-import Category from "../models/CategorySchema";
+import Category from "../models/CategorySchema.js";
 
 class CategoryService {
   static async createCategory({ title, color, user }) {

@@ -1,4 +1,4 @@
-import User from "../models/UserSchema";
+import User from "../models/UserSchema.js";
 
 class UserService {
   static async createUser(data) {

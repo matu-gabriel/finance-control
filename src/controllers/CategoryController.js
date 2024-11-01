@@ -1,5 +1,5 @@
-import Category from "../models/CategorySchema";
-import CategoryService from "../services/CategoryService";
+import Category from "../models/CategorySchema.js";
+import CategoryService from "../services/CategoryService.js";
 import * as Yup from "yup";
 
 class CategoryController {

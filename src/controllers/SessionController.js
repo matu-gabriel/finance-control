@@ -1,5 +1,5 @@
 import * as Yup from "yup";
-import UserService from "../services/UserService";
+import UserService from "../services/UserService.js";
 import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
 import { OAuth2Client } from "google-auth-library";
