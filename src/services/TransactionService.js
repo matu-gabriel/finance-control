@@ -231,8 +231,6 @@ class TransactionService {
       })
       .sort({ "_id.0": 1, "_id.1": 1 });
 
-    console.log(financeEvolution);
-
     return financeEvolution;
   }
 }
