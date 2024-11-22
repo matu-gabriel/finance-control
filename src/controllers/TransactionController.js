@@ -57,7 +57,7 @@ class TransactionController {
       title: Yup.string().optional(),
       amount: Yup.number().optional(),
       type: Yup.string().oneOf(["receita", "despesa"]).optional(),
-      categoryTitle: Yup.string().optional(),
+      categoryId: Yup.string().optional(),
     });
 
     try {
@@ -68,13 +68,13 @@ class TransactionController {
 
     const { transactionId } = req.params;
     const userId = req.userId;
-    const { title, amount, type, categoryTitle } = req.body;
+    const { title, amount, type, categoryId } = req.body;
 
     try {
       const updatedTransaction = await TransactionService.updateTransaction(
         transactionId,
         userId,
-        { title, amount, type, categoryTitle }
+        { title, amount, type, categoryId }
       );
 
       return res.status(200).json({

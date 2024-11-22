@@ -127,11 +127,22 @@ class TransactionService {
       transaction.title = data.title || transaction.title;
       transaction.amount = data.amount || transaction.amount;
       transaction.type = data.type || transaction.type;
-      transaction.category = data.category || transaction.category;
+
+      // Verifique se o `categoryId` foi enviado e atualize a categoria
+      if (data.categoryId) {
+        if (!mongoose.Types.ObjectId.isValid(data.categoryId)) {
+          throw new Error("Invalid category Id");
+        }
+        const category = await Category.findById(data.categoryId);
+        if (!category) {
+          throw new Error("Category not found");
+        }
+        transaction.category = category._id;
+      }
 
       await transaction.save();
 
-      return transaction;
+      return transaction.populate("category", "title");
     } catch (err) {
       console.error("Error updating transaction:", err.message);
       throw new Error("Error updating transaction");
